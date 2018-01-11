@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <android.support.v7.widget.CardView
+        android:clipToPadding="false"
+        android:layout_marginTop="@dimen/ten_dp"
+        android:layout_marginRight="@dimen/ten_dp"
+        android:layout_marginLeft="@dimen/ten_dp"
+        android:layout_marginBottom="@dimen/five_dp"
+        android:layout_gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        card_view:cardCornerRadius="4dp">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:background="@color/colorPrimary"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:textSize="@dimen/eighteen_sp"
+                    tools:ignore="MissingPrefix"
+                    fontPath="fonts/rsbold.ttf"
+                    android:layout_weight="1"
+                    tools:text="Url Title"
+                    android:textColor="@color/white"
+                    android:padding="@dimen/ten_dp"
+                    android:id="@+id/text_url_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <ImageView
+                    android:id="@+id/image_delete"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_delete"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_gravity="center_vertical"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    tools:text="https://urlst.ga/cc"
+                    android:layout_weight="1"
+                    android:padding="@dimen/ten_dp"
+                    android:id="@+id/text_short_url"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:gravity="center"
+                    tools:text="4"
+                    android:drawableLeft="@drawable/ic_views"
+                    android:layout_weight="3"
+                    android:padding="@dimen/ten_dp"
+                    android:id="@+id/text_views"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+
+            <TextView
+                tools:text="Long Url"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:padding="@dimen/ten_dp"
+                android:id="@+id/text_original_url"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <Button
+                    android:id="@+id/button_copy"
+                    android:padding="@dimen/ten_dp"
+                    android:drawableLeft="@drawable/ic_copy"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white"
+                    android:text="Copy"
+                    android:layout_margin="@dimen/five_dp"
+                    android:background="@drawable/background_button"
+                    android:layout_weight="1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <Button
+                    android:id="@+id/button_preview"
+                    android:padding="@dimen/ten_dp"
+                    android:drawableLeft="@drawable/ic_preview"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white"
+                    android:text="View"
+                    android:layout_margin="@dimen/five_dp"
+                    android:background="@drawable/background_button"
+                    android:layout_weight="1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <Button
+                    android:id="@+id/button_share"
+                    android:padding="@dimen/ten_dp"
+                    android:drawableLeft="@drawable/ic_share"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white"
+                    android:text="Share"
+                    android:layout_margin="@dimen/five_dp"
+                    android:background="@drawable/background_button"
+                    android:layout_weight="1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </android.support.v7.widget.CardView>
+
+</RelativeLayout>
