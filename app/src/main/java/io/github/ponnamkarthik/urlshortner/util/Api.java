@@ -25,3 +25,4 @@ public interface Api {
     @GET("delete")
     Call<DeleteModel> deleteUrl(@Query("uid") String uid, @Query("code") String code);
 }
+

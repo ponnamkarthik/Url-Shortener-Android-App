@@ -27,6 +27,8 @@ import com.google.android.gms.ads.MobileAds;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import butterknife.BindView;
@@ -37,6 +39,8 @@ import io.github.ponnamkarthik.urlshortner.add.AddUrl;
 import io.github.ponnamkarthik.urlshortner.auth.Login;
 import io.github.ponnamkarthik.urlshortner.util.Api;
 import io.github.ponnamkarthik.urlshortner.util.Network;
+import okhttp3.Cache;
+import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -121,11 +125,7 @@ public class Dashboard extends AppCompatActivity {
         hideError();
         showProgress();
         prepareNetwork();
-        if (Network.hasConnectivity(this, true)) {
-            getData();
-        } else {
-            showError();
-        }
+        getData();
     }
 
     @Override
@@ -145,7 +145,15 @@ public class Dashboard extends AppCompatActivity {
 
     private void prepareNetwork() {
 
-        OkHttpClient client = new OkHttpClient();
+        File httpCacheDirectory = new File(getCacheDir(), "responses");
+        int cacheSize = 10 * 1024 * 1024; // 10 MiB
+        Cache cache = new Cache(httpCacheDirectory, cacheSize);
+
+        OkHttpClient client = new OkHttpClient.Builder()
+                .cache(cache)
+                .addNetworkInterceptor(REWRITE_CACHE_CONTROL_INTERCEPTOR)
+                .build();
+
 
         Retrofit signUp = new Retrofit.Builder()
                 .client(client)
@@ -159,12 +167,10 @@ public class Dashboard extends AppCompatActivity {
     private void getData() {
 
         user = mAuth.getCurrentUser();
-
         if (user == null) {
             invalidLogin();
             return;
         }
-
         Call<List<DashboardModel>> call = api.getShortUrls(user.getUid());
 
         call.enqueue(new Callback<List<DashboardModel>>() {
@@ -184,6 +190,7 @@ public class Dashboard extends AppCompatActivity {
 
                     setListData();
                 } catch (Exception e) {
+                    showError();
                     e.printStackTrace();
                 }
             }
@@ -349,4 +356,23 @@ public class Dashboard extends AppCompatActivity {
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
     }
+
+    private final Interceptor REWRITE_CACHE_CONTROL_INTERCEPTOR = new Interceptor() {
+        @Override
+        public okhttp3.Response intercept(Chain chain) throws IOException {
+            okhttp3.Response originalResponse = chain.proceed(chain.request());
+            if (Network.hasConnectivity(Dashboard.this, true)) {
+                int maxAge = 60; // read from cache for 1 minute
+                return originalResponse.newBuilder()
+                        .header("Cache-Control", "public, max-age=" + maxAge)
+                        .build();
+            } else {
+                int maxStale = 60 * 60 * 24 * 28; // tolerate 4-weeks stale
+                return originalResponse.newBuilder()
+                        .header("Cache-Control", "public, only-if-cached, max-stale=" + maxStale)
+                        .build();
+            }
+        }
+    };
+
 }

@@ -5,6 +5,11 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
 
+import java.io.IOException;
+
+import okhttp3.Interceptor;
+import retrofit2.Response;
+
 /**
  * Created by ponna on 05-08-2017.
  */
@@ -23,7 +28,6 @@ public class Network {
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo info = connectivityManager.getActiveNetworkInfo();
         try {
-            Log.d("GHM", info.toString() + "       " + info.getTypeName() + "        " + info.getSubtypeName());
 
             if(info.getTypeName() == "WIFI") {
 
