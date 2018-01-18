@@ -6,11 +6,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -61,6 +63,8 @@ public class Dashboard extends AppCompatActivity {
     RecyclerView content;
     @BindView(R.id.fab_add)
     FloatingActionButton fabAdd;
+    @BindView(R.id.swipe_refresh)
+    SwipeRefreshLayout swipeRefresh;
 
     private FirebaseAuth mAuth;
     private FirebaseUser user;
@@ -101,11 +105,11 @@ public class Dashboard extends AppCompatActivity {
                 new AlertDialog.Builder(Dashboard.this)
                         .setMessage("Do you want to delete \n\nhttps:\\\\urlst.ga\\" + code + "\n\nThis url will no longer be working")
                         .setTitle("DeleteInterface")
-                        .setPositiveButton("DeleteInterface", new DialogInterface.OnClickListener() {
+                        .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 dialogInterface.dismiss();
-                                deleteData(uid, code);
+                                startDelete(uid, code);
                             }
                         })
                         .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -119,6 +123,24 @@ public class Dashboard extends AppCompatActivity {
             }
         };
 
+        swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                swipeRefresh.setRefreshing(true);
+                startDataService();
+                Log.d("Karthik", "IsSwipe");
+            }
+        });
+
+    }
+
+    private void startDelete(String uid, String code) {
+        if(Network.hasConnectivity(this, true)) {
+            deleteData(uid, code);
+        } else {
+            Snackbar.make(fabAdd, "Not Available in offilemode",
+                    Snackbar.LENGTH_SHORT).show();
+        }
     }
 
     private void startDataService() {
@@ -201,7 +223,6 @@ public class Dashboard extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        hideProgress();
                         showError();
                     }
                 });
@@ -226,7 +247,7 @@ public class Dashboard extends AppCompatActivity {
                 });
                 try {
                     DeleteModel deleteModel = response.body();
-                    if(deleteModel.isError()) {
+                    if (deleteModel.isError()) {
                         deleteError(deleteModel.getMsg());
                     } else {
                         deleteError(deleteModel.getMsg());
@@ -255,6 +276,7 @@ public class Dashboard extends AppCompatActivity {
         Snackbar.make(fabAdd, "Unable to DeleteInterface Url.",
                 Snackbar.LENGTH_SHORT).show();
     }
+
     private void deleteError(String msg) {
         Snackbar.make(fabAdd, msg,
                 Snackbar.LENGTH_SHORT).show();
@@ -262,7 +284,7 @@ public class Dashboard extends AppCompatActivity {
 
     private void setListData() {
         content.setLayoutManager(new LinearLayoutManager(this));
-        if(dashboardAdapter == null) {
+        if (dashboardAdapter == null) {
             dashboardAdapter = new DashboardAdapter(this, models, deleteUrl);
             content.setAdapter(dashboardAdapter);
         } else {
@@ -271,16 +293,29 @@ public class Dashboard extends AppCompatActivity {
     }
 
     private void showProgress() {
-        progressLayout.setVisibility(View.VISIBLE);
+        if(models == null || models.isEmpty()) {
+            progressLayout.setVisibility(View.VISIBLE);
+        } else {
+            swipeRefresh.setRefreshing(true);
+        }
     }
 
     private void hideProgress() {
-        progressLayout.setVisibility(View.GONE);
+        if(swipeRefresh.isRefreshing()) {
+            swipeRefresh.setRefreshing(false);
+        }
+        if(models == null || models.isEmpty()) {
+            progressLayout.setVisibility(View.GONE);
+        } else {
+            swipeRefresh.setRefreshing(false);
+        }
     }
 
     private void showError() {
         hideProgress();
-        errorLayout.setVisibility(View.VISIBLE);
+        if(models == null || models.isEmpty()) {
+            errorLayout.setVisibility(View.VISIBLE);
+        }
     }
 
     private void hideError() {
@@ -343,7 +378,7 @@ public class Dashboard extends AppCompatActivity {
     }
 
     private void logoutUser() {
-        if(mAuth == null) {
+        if (mAuth == null) {
             mAuth = FirebaseAuth.getInstance();
         }
 
@@ -362,7 +397,7 @@ public class Dashboard extends AppCompatActivity {
         public okhttp3.Response intercept(Chain chain) throws IOException {
             okhttp3.Response originalResponse = chain.proceed(chain.request());
             if (Network.hasConnectivity(Dashboard.this, true)) {
-                int maxAge = 60; // read from cache for 1 minute
+                int maxAge = 5; // read from cache for 1 minute
                 return originalResponse.newBuilder()
                         .header("Cache-Control", "public, max-age=" + maxAge)
                         .build();

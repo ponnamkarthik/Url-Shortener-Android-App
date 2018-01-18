@@ -1,7 +1,10 @@
 package io.github.ponnamkarthik.urlshortner.add;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -11,6 +14,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
@@ -18,15 +22,12 @@ import com.google.android.gms.ads.AdView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-import java.util.List;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.github.ponnamkarthik.urlshortner.R;
 import io.github.ponnamkarthik.urlshortner.auth.Login;
 import io.github.ponnamkarthik.urlshortner.dashboard.Dashboard;
-import io.github.ponnamkarthik.urlshortner.dashboard.DashboardModel;
 import io.github.ponnamkarthik.urlshortner.util.Api;
 import io.github.ponnamkarthik.urlshortner.util.Network;
 import okhttp3.OkHttpClient;
@@ -68,6 +69,13 @@ public class AddUrl extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         mAuth = FirebaseAuth.getInstance();
+
+        Intent i = getIntent();
+        Uri uri = i.getData();
+        if(uri != null) {
+            String url = uri.toString();
+            inputLongUrl.setText(url);
+        }
 
         //call LoadAds
         loadAds();
@@ -118,6 +126,10 @@ public class AddUrl extends AppCompatActivity {
                         hideProgress();
                         if (!response.isSuccessful()) {
                             showError("Unknown Error");
+                        } else {
+                            if(!response.body().getShort_url().isEmpty()) {
+                                setClipboardText(response.body().getShort_url());
+                            }
                         }
                     }
                 });
@@ -220,6 +232,20 @@ public class AddUrl extends AppCompatActivity {
     @Override
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
+    }
+
+    private void setClipboardText(String text) {
+        if(android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
+            ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+            clipboard.setText(text);
+        } else {
+            ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+            ClipData clip = ClipData.newPlainText("Copied Text", text);
+            clipboard.setPrimaryClip(clip);
+        }
+
+        Toast.makeText(this, "Short Url Copied !",
+                Toast.LENGTH_SHORT).show();
     }
 
 }
