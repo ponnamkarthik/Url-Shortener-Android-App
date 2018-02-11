@@ -12,9 +12,10 @@ android {
         applicationId "io.github.ponnamkarthik.urlshortner"
         minSdkVersion 15
         targetSdkVersion 26
-        versionCode 4
-        versionName "1.2.1"
+        versionCode 6
+        versionName "1.2.3"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        resConfigs "en"
     }
 
     signingConfigs {
@@ -29,7 +30,7 @@ android {
     buildTypes {
         release {
             signingConfig signingConfigs.release
-            minifyEnabled true
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }

@@ -85,8 +85,7 @@ public class Dashboard extends AppCompatActivity {
         setContentView(R.layout.activity_dashboard);
         ButterKnife.bind(this);
 
-        MobileAds.initialize(this,
-                getString(R.string.admob_app_id));
+
 
         mAuth = FirebaseAuth.getInstance();
 
@@ -351,10 +350,10 @@ public class Dashboard extends AppCompatActivity {
     private void loadIntersitialAds() {
         mInterstitialAd = new InterstitialAd(this);
         mInterstitialAd.setAdUnitId(getString(R.string.interstial_ad));
+        mInterstitialAd.loadAd(new AdRequest.Builder().build());
         mInterstitialAd.setAdListener(new AdListener() {
             @Override
             public void onAdLoaded() {
-                super.onAdLoaded();
                 mInterstitialAd.show();
             }
         });
